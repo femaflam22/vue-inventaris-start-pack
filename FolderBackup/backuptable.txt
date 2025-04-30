@@ -1,0 +1,141 @@
+<template>
+  <div class="mt-5">
+    <h4>Daftar Barang</h4>
+
+    <div class="table-responsive">
+      <table class="table table-bordered mt-3">
+        <thead>
+          <tr>
+            <th style="width: 10%;">No</th>
+            <th style="width: 30%;">Nama</th>
+            <th style="width: 20%;">Tipe</th>
+            <th style="width: 10%;">Stok</th>
+            <th style="width: 30%;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in itemsWithStock" :key="item.id">
+            <td>{{ index + 1 }}</td>
+            <td class="text-wrap">{{ item.name }}</td>
+            <td class="text-wrap">{{ item.type }}</td>
+            <td>{{ item.stock }}</td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                <template v-if="!isTrash">
+                  <button class="btn btn-warning btn-sm" @click="$emit('edit-item', item)">Edit</button>
+                  <button class="btn btn-danger btn-sm" @click="$emit('delete-item', item.id)">Hapus</button>
+                  <button class="btn btn-info btn-sm" @click="openDetail(item)">Detail</button>
+                </template>
+                <template v-else>
+                  <button class="btn btn-success btn-sm" @click="$emit('restore-item', item.id)">Restore</button>
+                  <button class="btn btn-danger btn-sm" @click="$emit('delete-permanent', item.id)">Hapus Permanen</button>
+                </template>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p v-if="itemsWithStock.length === 0" class="text-muted">Belum ada data barang.</p>
+
+    <!-- Modal Detail -->
+    <div v-if="showModal" class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Detail Barang</h5>
+            <button type="button" class="btn-close" @click="closeDetail"></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Id:</strong> {{ selectedItem.id }}</p>
+            <p><strong>Nama:</strong> {{ selectedItem.name }}</p>
+            <p><strong>Tipe:</strong> {{ selectedItem.type }}</p>
+            <p><strong>Stok:</strong> {{ selectedItem.stock }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeDetail">Tutup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "StuffTable",
+  props: {
+    stuffs: {
+      type: Array,
+      required: true
+    },
+    inbound_stuffs: {
+      type: Array,
+      required: true
+    },
+    isTrash: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      showModal: false,
+      selectedItem: {}
+    };
+  },
+  computed: {
+    itemsWithStock() {
+      return this.stuffs.map(stuff => {
+        const stock = this.inbound_stuffs.filter(inbound => inbound.stuff_id === stuff.id).length;
+        return { ...stuff, stock };
+      });
+    }
+  },
+  methods: {
+    openDetail(item) {
+      this.selectedItem = item;
+      this.showModal = true;
+    },
+    closeDetail() {
+      this.showModal = false;
+      this.selectedItem = {};
+    }
+  }
+};
+</script>
+
+<style scoped>
+@media (max-width: 576px) {
+  .table thead {
+    display: none;
+  }
+
+  .table, .table tbody, .table tr, .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+    text-align: left;
+  }
+}
+
+.modal.fade.show {
+  display: block;
+}
+</style>

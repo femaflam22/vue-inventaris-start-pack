@@ -1,0 +1,277 @@
+<template>
+  <div class="container py-4">
+    <h2 class="mb-4">Kelola Barang</h2>
+
+    <!-- Form Tambah/Edit Barang -->
+    <form @submit.prevent="submitForm" class="card p-3 shadow-sm mb-4">
+      <div class="mb-3">
+        <label class="form-label">Nama Barang:</label>
+        <input v-model="form.name" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Tipe Barang:</label>
+        <select v-model="form.type" class="form-control" required>
+          <option value="" disabled>Pilih tipe</option>
+          <option value="Lab">Lab</option>
+          <option value="HTL/KLN">HTL/KLN</option>
+        </select>
+      </div>
+      <button class="btn btn-primary w-100">{{ isEdit ? 'Update' : 'Tambah' }}</button>
+    </form>
+
+    <!-- Tombol Modal Inbound -->
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-success mb-3" @click="openInboundModal">
+        Inbound Barang
+      </button>
+    </div>
+
+    <!-- Modal Inbound -->
+    <div v-if="showInboundModal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Inbound Barang</h5>
+            <button type="button" class="btn-close" @click="closeInboundModal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Pilih Barang:</label>
+              <select v-model="selectedInboundItem" class="form-control" required>
+                <option disabled value="">-- Pilih Barang --</option>
+                <option v-for="item in stuffs" :key="item.id" :value="item">
+                  {{ item.name }} ({{ item.type }})
+                </option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Jumlah Masuk:</label>
+              <input type="number" class="form-control" v-model.number="inboundQuantity" required min="1" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Upload Bukti (Image):</label>
+              <input type="file" class="form-control" @change="handleFileUpload" accept="image/*" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" @click="submitInbound">Simpan</button>
+            <button class="btn btn-secondary" @click="closeInboundModal">Batal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pesan -->
+    <div class="mt-3" v-if="message">
+      <div class="alert" :class="{'alert-success': success, 'alert-danger': !success}">
+        {{ message }}
+      </div>
+    </div>
+
+    <!-- Input Pencarian -->
+    <input v-model="search" placeholder="Cari nama atau ID..." class="form-control mt-4 mb-3" />
+
+    <!-- Komponen Tabel -->
+    <StuffTable
+      :stuffs="filteredStuffs"
+      :inbound_stuffs="inbound_stuff"
+      :itemsPerPage="5"
+      :currentPage="currentPage"
+      @change-page="currentPage = $event"
+      @edit-item="handleEdit"
+      @delete-item="deleteItem"
+      @detail-item="detailStuff"
+    />
+  </div>
+</template>
+
+<script>
+import StuffTable from "../components/Table.vue";
+import axios from "axios";
+import { API_BASE_URL } from "../constant.js";
+
+export default {
+  name: "StuffView",
+  components: { StuffTable },
+  data() {
+    return {
+      stuffs: [],
+      inbound_stuff: [],
+      form: {
+        id: null,
+        name: "",
+        type: ""
+      },
+      isEdit: false,
+      search: "",
+      currentPage: 1,
+      message: "",
+      success: false,
+      showInboundModal: false,
+      selectedInboundItem: null,
+      inboundQuantity: 1,
+      proofFile: null
+    };
+  },
+  computed: {
+    filteredStuffs() {
+      if (!this.search) return this.stuffs;
+      const s = this.search.toLowerCase();
+      return this.stuffs.filter(item =>
+        item.name.toLowerCase().includes(s) ||
+        String(item.id).includes(s)
+      );
+    }
+  },
+  methods: {
+    async fetchStuffs() {
+      const token = localStorage.getItem("access_token");
+      try {
+        const res = await axios.get(`${API_BASE_URL}/stuffs`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.stuffs = res.data.data;
+      } catch (err) {
+        console.error("Gagal ambil data:", err);
+      }
+    },
+
+    async submitForm() {
+      const token = localStorage.getItem("access_token");
+      try {
+        if (this.isEdit) {
+          await axios.patch(`${API_BASE_URL}/stuffs/${this.form.id}`, this.form, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        } else {
+          const res = await axios.post(`${API_BASE_URL}/stuffs`, this.form, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          this.stuffs.unshift(res.data.data);
+          this.message = "Berhasil Menambahkan Barang!";
+          this.success = true;
+        }
+        this.resetForm();
+        this.fetchStuffs();
+        setTimeout(() => this.message = "", 3000);
+      } catch (err) {
+        console.error("Gagal kirim data:", err);
+        this.message = "Gagal Menambahkan Barang!";
+        this.success = false;
+        setTimeout(() => this.message = "", 3000);
+      }
+    },
+
+    handleEdit(item) {
+      this.form = { ...item };
+      this.isEdit = true;
+    },
+
+    async deleteItem(id) {
+      const token = localStorage.getItem("access_token");
+      try {
+        await axios.delete(`${API_BASE_URL}/stuffs/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.stuffs = this.stuffs.filter(item => item.id !== id);
+      } catch (err) {
+        console.error("Gagal hapus:", err);
+      }
+    },
+
+    async detailStuff(id) {
+      const token = localStorage.getItem("access_token");
+      try {
+        await axios.get(`${API_BASE_URL}/stuffs/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.message = "Berhasil Mengambil data!";
+        this.success = true;
+        setTimeout(() => this.message = "", 3000);
+      } catch (err) {
+        console.error("Gagal ambil detail:", err);
+        this.message = "Gagal mengambil data!";
+        this.success = false;
+        setTimeout(() => this.message = "", 3000);
+      }
+    },
+
+    openInboundModal() {
+      this.showInboundModal = true;
+      this.selectedInboundItem = null;
+      this.inboundQuantity = 1;
+      this.proofFile = null;
+    },
+
+    closeInboundModal() {
+      this.showInboundModal = false;
+      this.selectedInboundItem = null;
+      this.inboundQuantity = 1;
+      this.proofFile = null;
+    },
+
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.proofFile = file;
+      }
+    },
+
+    async submitInbound() {
+      if (!this.selectedInboundItem || this.inboundQuantity < 1 || !this.proofFile) {
+        this.message = "Mohon lengkapi semua data!";
+        this.success = false;
+        setTimeout(() => this.message = "", 3000);
+        return;
+      }
+
+      const token = localStorage.getItem("access_token");
+      const formData = new FormData();
+      formData.append("stuff_id", this.selectedInboundItem.id);
+      formData.append("total", this.inboundQuantity);
+      formData.append("proof_file", this.proofFile);
+
+      try {
+        await axios.post(`${API_BASE_URL}/inbound-stuffs`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
+        });
+        this.message = "Stok berhasil ditambahkan!";
+        this.success = true;
+        this.fetchStuffs();
+        this.closeInboundModal();
+        setTimeout(() => this.message = "", 3000);
+      } catch (err) {
+        console.error("Gagal menambahkan stok:", err);
+        this.message = "Gagal menambahkan stok!";
+        this.success = false;
+        setTimeout(() => this.message = "", 3000);
+      }
+    },
+
+    async getInbound() {
+      const token = localStorage.getItem("access_token");
+      try {
+        const res = await axios.get(`${API_BASE_URL}/inbound-stuffs`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.inbound_stuff = res.data.data;
+      } catch (err) {
+        console.error("Gagal ambil data inbound:", err);
+      }
+    },
+
+    resetForm() {
+      this.form = { id: null, name: "", type: "" };
+      this.isEdit = false;
+    }
+  },
+
+  mounted() {
+    this.getInbound();
+    this.fetchStuffs();
+  }
+};
+</script>
