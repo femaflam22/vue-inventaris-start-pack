@@ -29,9 +29,7 @@
     <!-- Input untuk pencarian -->
     <input v-model="search" placeholder="Cari nama atau ID..." class="form-control mt-4 mb-3" />
 
-    <StuffTable :stuffs="filteredStuffs" :itemsPerPage="5" :currentPage="currentPage"
-      @change-page="currentPage = $event" @edit-item="handleEdit" @delete-item="deleteItem"
-      @detail-item="detailStuff" />
+    <StuffTable :stuffs="filteredStuffs" @edit-item="handleEdit" @delete-item="deleteItem" />
   </div>
 </template>
 
