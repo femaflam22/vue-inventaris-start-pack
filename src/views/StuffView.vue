@@ -19,7 +19,10 @@
       </div>
       <button class="btn btn-primary mb-2 d-flex">{{ isEdit ? 'Update' : 'Tambah' }}</button>
     </form>
+<<<<<<< HEAD
 
+=======
+>>>>>>> b31eeb5ff95616f925067f1e601fd4769a831d8a
     <!-- Pesan sukses atau error -->
     <div class="mt-3" v-if="message">
       <div class="alert" :class="{ 'alert-success': success, 'alert-danger': !success }">
@@ -27,10 +30,17 @@
       </div>
     </div>
 
+<<<<<<< HEAD
     <input v-model="search" placeholder="Cari nama atau ID..." class="form-control mt-4 mb-3" />
 
     <StuffTable :data="filteredStuffs" :tableTd="tableTd" :tableTh="tableTh" :actionBtn="actionBtn"
       @edit-item="handleEdit" @delete-item="deleteItem" :itemDetail="tableTd" />
+=======
+    <!-- Input untuk pencarian -->
+    <input v-model="search" placeholder="Cari nama atau ID..." class="form-control mt-4 mb-3" />
+
+    <StuffTable :stuffs="filteredStuffs" @edit-item="handleEdit" @delete-item="deleteItem" />
+>>>>>>> b31eeb5ff95616f925067f1e601fd4769a831d8a
   </div>
 </template>
 
@@ -180,10 +190,17 @@ export default {
       this.isEdit = false;
     }
   },
+<<<<<<< HEAD
 
+=======
+>>>>>>> b31eeb5ff95616f925067f1e601fd4769a831d8a
   // Ketika komponen dimount, ambil data barang
   mounted() {
     this.fetchStuffs();
   }
 };
+<<<<<<< HEAD
 </script>
+=======
+</script>
+>>>>>>> b31eeb5ff95616f925067f1e601fd4769a831d8a
