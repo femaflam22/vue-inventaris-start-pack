@@ -19,10 +19,6 @@
       </div>
       <button class="btn btn-primary mb-2 d-flex">{{ isEdit ? 'Update' : 'Tambah' }}</button>
     </form>
-<<<<<<< HEAD
-
-=======
->>>>>>> b31eeb5ff95616f925067f1e601fd4769a831d8a
     <!-- Pesan sukses atau error -->
     <div class="mt-3" v-if="message">
       <div class="alert" :class="{ 'alert-success': success, 'alert-danger': !success }">
@@ -30,17 +26,10 @@
       </div>
     </div>
 
-<<<<<<< HEAD
     <input v-model="search" placeholder="Cari nama atau ID..." class="form-control mt-4 mb-3" />
 
-    <StuffTable :data="filteredStuffs" :tableTd="tableTd" :tableTh="tableTh" :actionBtn="actionBtn"
-      @edit-item="handleEdit" @delete-item="deleteItem" :itemDetail="tableTd" />
-=======
-    <!-- Input untuk pencarian -->
-    <input v-model="search" placeholder="Cari nama atau ID..." class="form-control mt-4 mb-3" />
-
-    <StuffTable :stuffs="filteredStuffs" @edit-item="handleEdit" @delete-item="deleteItem" />
->>>>>>> b31eeb5ff95616f925067f1e601fd4769a831d8a
+    <StuffTable title="Data Stuffs" :data="filteredStuffs" :tableTd="tableTd" :tableTh="tableTh" :actionBtn="actionBtn"
+      @edit-item="handleEdit" @delete-item="deleteItem" :itemDetail="tableTd" @print-pdf="printPDF" @export-excel="exportExcel" :exportBtn="['pdf', 'excel']" />
   </div>
 </template>
 
@@ -49,6 +38,8 @@ import StuffTable from "../components/Table.vue"; // Komponen untuk tabel
 import axios from "axios";
 import { API_BASE_URL } from "../constant.js"; // Konstanta URL base dari API
 import { useRouter } from "vue-router";
+import jsPDF from "jspdf";
+import * as XLSX from "xlsx";
 
 export default {
   name: "StuffView",
@@ -188,6 +179,43 @@ export default {
     resetForm() {
       this.form = { id: null, name: "", type: "" };
       this.isEdit = false;
+    },
+    printPDF() {
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text("Daftar Barang", 20, 20);
+
+      let yPosition = 30;  // Menentukan posisi vertikal
+      doc.setFontSize(12);
+
+      // Menambahkan header
+      doc.text("No", 20, yPosition);
+      doc.text("Nama", 40, yPosition);
+      doc.text("Tipe", 100, yPosition);
+      yPosition += 10;
+
+      // Menambahkan data barang
+      this.stuffs.forEach((item, index) => {
+        doc.text((index + 1).toString(), 20, yPosition);
+        doc.text(item.name, 40, yPosition);
+        doc.text(item.type, 100, yPosition);
+        yPosition += 10;
+      });
+
+      // Menyimpan PDF
+      doc.save("daftar_barang.pdf");
+    },
+    exportExcel() {
+      const ws = XLSX.utils.json_to_sheet(this.stuffs.map(item => ({
+        No: this.stuffs.indexOf(item) + 1,
+        Nama: item.name,
+        Tipe: item.type
+      })));
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Daftar Barang");
+      XLSX.writeFile(wb, "daftar_barang.xlsx");
     }
   },
   // Ketika komponen dimount, ambil data barang

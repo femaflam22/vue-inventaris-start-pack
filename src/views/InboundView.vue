@@ -1,13 +1,12 @@
 <template>
     <div class="container my-4">
-        <h1>Inbound Stuffs</h1>
         <div class="mt-3" v-if="message">
             <div class="alert" :class="{ 'alert-success': success, 'alert-danger': !success }">
                 {{ message }}
             </div>
         </div>
 
-        <Table :data="inbounds" :tableTd="tableTd" :tableTh="tableTh" :actionBtn="actionBtn" :itemDetail="itemDetail" />
+        <Table title="Data Inbound Stuffs" :data="inbounds" :tableTd="tableTd" :tableTh="tableTh" :actionBtn="actionBtn" :itemDetail="itemDetail" @delete-item="deleteInbound" />
     </div>
 </template>
 
@@ -40,6 +39,28 @@ export default {
             })
             .then(res => {
                 this.inbounds = res.data.data;
+            })
+            .catch(err => {
+                if (err.status == 401) {
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("access_token");
+                    const router = useRouter();
+                    router.replace('/'); 
+                }
+                this.message = "Gagal mengambil data!";
+                console.log(err);
+            })
+        },
+        deleteInbound(id) {
+            axios.delete(API_BASE_URL + "/inbound-stuffs/" + id, {
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem("access_token")
+                }
+            })
+            .then(res => {
+                this.message = "Berhasil menghapus data inbound!";
+                this.success = true;
+                this.fetchData();
             })
             .catch(err => {
                 if (err.status == 401) {
