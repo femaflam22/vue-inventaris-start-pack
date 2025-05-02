@@ -190,17 +190,9 @@ export default {
       this.isEdit = false;
     }
   },
-<<<<<<< HEAD
-
-=======
->>>>>>> b31eeb5ff95616f925067f1e601fd4769a831d8a
   // Ketika komponen dimount, ambil data barang
   mounted() {
     this.fetchStuffs();
   }
 };
-<<<<<<< HEAD
 </script>
-=======
-</script>
->>>>>>> b31eeb5ff95616f925067f1e601fd4769a831d8a
