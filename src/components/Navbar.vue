@@ -32,6 +32,9 @@
           <li class="nav-item">
             <router-link to="/trash" class="nav-link text-dark">Trash</router-link>
           </li>
+          <li class="nav-item">
+            <router-link to="/inbounds" class="nav-link text-dark">Inbounds</router-link>
+          </li>
         </ul>
 
         <!-- Clock & Logout -->
