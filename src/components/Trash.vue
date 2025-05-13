@@ -4,7 +4,10 @@
       <h2>Trash Barang</h2>
   
       <StuffTable
-        :stuffs="trashedItems"
+        :data="trashedItems"
+        :tableTh="['No', 'Nama', 'Tipe', 'Aksi']"
+        :tableTd="['name', 'type']"
+        :actionBtn="[]"
         :isTrash="true"
         @restore-item="restoreItem"
         @delete-permanent="deletePermanent"

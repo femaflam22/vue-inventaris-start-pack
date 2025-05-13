@@ -24,6 +24,11 @@ const router = createRouter({
       path: "/trash",
       name: "TrashView",
       component: () => import("../components/Trash.vue")
+    },
+    {
+      path: "/inbounds",
+      name: "inbounds",
+      component: () => import("../views/InboundView.vue")
     }
   ],
 })

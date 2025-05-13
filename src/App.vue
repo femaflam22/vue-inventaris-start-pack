@@ -1,5 +1,6 @@
 <template>
   <Navbar v-if="isAuthenticated" />
+  <!-- @yield -->
   <router-view v-if="isLoaded" />
 </template>
 

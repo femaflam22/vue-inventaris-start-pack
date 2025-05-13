@@ -29,7 +29,8 @@
     <!-- Input untuk pencarian -->
     <input v-model="search" placeholder="Cari nama atau ID..." class="form-control mt-4 mb-3" />
 
-    <StuffTable :stuffs="filteredStuffs" @edit-item="handleEdit" @delete-item="deleteItem" />
+    <!-- : mengisi props. :data, :tableTh, :tableTd dari nama props di components Table. yg di "" dari bagian data() {..} -->
+    <StuffTable :data="filteredStuffs" :tableTh="tableTh" :tableTd="tableTd" :actionBtn="actionBtn" :itemDetail="itemDetail" @edit-item="handleEdit" @delete-item="deleteItem" />
   </div>
 </template>
 
@@ -54,7 +55,14 @@ export default {
       search: "",    // Kata kunci pencarian
       message: "", //Pesan message nya
       success: false,
-      selectedItem: {}
+      selectedItem: {},
+      // judul column table (th)
+      tableTh: ["No", "Nama", "Tipe", "Aksi"],
+      // isi td : field dari api
+      // no dan aksi sudah memiliki td di tablenya
+      tableTd: ["name", "type"],
+      actionBtn: ["edit", "delete", "detail"],
+      itemDetail: ["name", "type"]
     };
   },
   // Fungsi computed adalah  untuk Menghasilkan nilai baru berdasarkan data atau props
@@ -79,6 +87,7 @@ export default {
       })
       .then(res => {
         this.stuffs = res.data.data;
+        console.log(res)
       })
       .catch(err => {
         if (err.status == 401) {
