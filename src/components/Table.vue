@@ -1,20 +1,20 @@
 <template>
   <!-- Container utama -->
   <div class="mt-5">
-  <h4>Daftar Barang</h4>
+    <h4>{{ title }}</h4>
 
-  <!-- Tombol-tombol aksi -->
-  <div class="d-flex gap-3 mb-3">
-    <!-- Tombol untuk Cetak PDF dengan ikon -->
-    <button class="btn btn-primary" @click="printPDF">
-      <i class="bi bi-file-earmark-pdf"></i> Cetak PDF
-    </button>
+    <!-- Tombol-tombol aksi -->
+    <div class="d-flex gap-3 mb-3">
+      <!-- Tombol untuk Cetak PDF dengan ikon -->
+      <button class="btn btn-primary" v-if="exportBtn.includes('pdf')" @click="$emit('print-pdf')">
+        <i class="bi bi-file-earmark-pdf"></i> Cetak PDF
+      </button>
 
-    <!-- Tombol untuk Ekspor ke Excel dengan ikon -->
-    <button class="btn btn-success" @click="exportExcel">
-      <i class="bi bi-file-earmark-excel"></i> Ekspor ke Excel
-    </button>
-  </div>
+      <!-- Tombol untuk Ekspor ke Excel dengan ikon -->
+      <button class="btn btn-success" v-if="exportBtn.includes('excel')" @click="$emit('export-excel')">
+        <i class="bi bi-file-earmark-excel"></i> Ekspor ke Excel
+      </button>
+    </div>
 
   <!-- Tabel barang -->
   <div class="table-responsive">
@@ -68,7 +68,8 @@
   <p v-if="data.length === 0" class="text-muted">Belum ada data barang.</p>
 
     <!-- Modal detail, tampil jika showModal = true -->
-    <div v-if="showModal" class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+    <div v-if="showModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+      style="background-color: rgba(0,0,0,0.5);">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <!-- Header modal -->
@@ -96,9 +97,6 @@
 </template>
 
 <script>
-import jsPDF from "jspdf";
-import * as XLSX from "xlsx";
-
 export default {
   name: "StuffTable",
   props: {
@@ -129,14 +127,14 @@ export default {
       default: []
     },
     isTrash: {
-      type: Boolean,      
+      type: Boolean,
       default: false
     }
   },
   data() {
     return {
-      showModal: false,     
-      selectedItem: {}      
+      showModal: false,
+      selectedItem: {}
     };
   },
   methods: {
@@ -208,22 +206,29 @@ export default {
 /* Responsive style untuk ukuran layar kecil */
 @media (max-width: 576px) {
   .table thead {
-    display: none; /* Sembunyikan header tabel */
+    display: none;
+    /* Sembunyikan header tabel */
   }
 
-  .table, .table tbody, .table tr, .table td {
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
     display: block;
-    width: 100%; /* Tabel jadi blok untuk mode mobile */
+    width: 100%;
+    /* Tabel jadi blok untuk mode mobile */
   }
 
   .table td {
     text-align: right;
-    padding-left: 50%; /* Buat space di kiri untuk label */
+    padding-left: 50%;
+    /* Buat space di kiri untuk label */
     position: relative;
   }
 
   .table td::before {
-    content: attr(data-label); /* Label dari atribut */
+    content: attr(data-label);
+    /* Label dari atribut */
     position: absolute;
     left: 10px;
     width: 45%;
