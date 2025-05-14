@@ -6,12 +6,12 @@
     <!-- Tombol-tombol aksi -->
     <div class="d-flex gap-3 mb-3">
       <!-- Tombol untuk Cetak PDF dengan ikon -->
-      <button class="btn btn-primary" v-if="exportBtn && exportBtn.includes('pdf')" @click="$emit('print-pdf')">
+      <button class="btn btn-primary" v-if="exportBtn && exportBtn.includes('export-pdf')" @click="$emit('export-pdf')">
         <i class="bi bi-file-earmark-pdf"></i> Cetak PDF
       </button>
 
       <!-- Tombol untuk Ekspor ke Excel dengan ikon -->
-      <button class="btn btn-success" v-if="exportBtn && exportBtn.includes('excel')" @click="$emit('export-excel')">
+      <button class="btn btn-success" v-if="exportBtn && exportBtn.includes('export-excel')" @click="$emit('export-excel')">
         <i class="bi bi-file-earmark-excel"></i> Ekspor ke Excel
       </button>
     </div>
@@ -100,6 +100,10 @@
 export default {
   name: "StuffTable",
   props: {
+    title: {
+      type: String,
+      required: true
+    },
     // data : bisa berupa stuff (barang), stock (inbound), lending (peminjaman)
     data: {
       type: Array,        
@@ -129,6 +133,11 @@ export default {
     isTrash: {
       type: Boolean,
       default: false
+    },
+    exportBtn: {
+      type: Array,
+      // agar jika props tdk diisi sama dengan tdk ada aksi export
+      default: []
     }
   },
   data() {
@@ -159,44 +168,6 @@ export default {
       this.showModal = false;
       this.selectedItem = {};
     },
-    // Menambahkan metode untuk mencetak PDF
-    printPDF() {
-      const doc = new jsPDF();
-
-      doc.setFontSize(18);
-      doc.text("Daftar Barang", 20, 20);
-
-      let yPosition = 30;  // Menentukan posisi vertikal
-      doc.setFontSize(12);
-      
-      // Menambahkan header
-      doc.text("No", 20, yPosition);
-      doc.text("Nama", 40, yPosition);
-      doc.text("Tipe", 100, yPosition);
-      yPosition += 10;
-
-      // Menambahkan data barang
-      this.data.forEach((item, index) => {
-        doc.text((index + 1).toString(), 20, yPosition);
-        doc.text(item.name, 40, yPosition);
-        doc.text(item.type, 100, yPosition);
-        yPosition += 10;
-      });
-
-      // Menyimpan PDF
-      doc.save("daftar_barang.pdf");
-    },
-    exportExcel() {
-      const ws = XLSX.utils.json_to_sheet(this.data.map(item => ({
-        No: this.data.indexOf(item) + 1,
-        Nama: item.name,
-        Tipe: item.type
-      })));
-
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Daftar Barang");
-      XLSX.writeFile(wb, "daftar_barang.xlsx");
-    }
   }
 };
 </script>

@@ -29,7 +29,7 @@
     <input v-model="search" placeholder="Cari nama atau ID..." class="form-control mt-4 mb-3" />
 
     <!-- : mengisi props. :data, :tableTh, :tableTd dari nama props di components Table. yg di "" dari bagian data() {..} -->
-    <StuffTable :data="filteredStuffs" :tableTh="tableTh" :tableTd="tableTd" :actionBtn="actionBtn" :itemDetail="itemDetail" @edit-item="handleEdit" @delete-item="deleteItem" />
+    <StuffTable :data="filteredStuffs" :tableTh="tableTh" :tableTd="tableTd" :actionBtn="actionBtn" :itemDetail="itemDetail" @edit-item="handleEdit" @delete-item="deleteItem" title="Daftar Barang" :exportBtn="['export-pdf', 'export-excel']" @export-pdf="printPDF" @export-excel="exportExcel" />
   </div>
 </template>
 
@@ -193,7 +193,7 @@ export default {
 
       let yPosition = 30;  // Menentukan posisi vertikal
       doc.setFontSize(12);
-
+      
       // Menambahkan header
       doc.text("No", 20, yPosition);
       doc.text("Nama", 40, yPosition);

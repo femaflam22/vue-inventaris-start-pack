@@ -15,8 +15,6 @@ export default {
     Navbar
   },
   setup() {
-    const router = useRouter();
-    const route = useRoute();
     const isAuthenticated = ref(false);
     const isLoaded = ref(false);
 
@@ -26,23 +24,9 @@ export default {
       return isAuthenticated.value;
     };
 
-    const handleNavigation = () => {
-      const isAuth = checkAuth();
-
-      // Jika tidak terautentikasi dan mencoba mengakses halaman selain login atau register
-      if (!isAuth && route.path !== '/') {
-        router.replace('/');  // Mengarahkan ke halaman register
-      }
-    };
-
     onMounted(() => {
       isAuthenticated.value = checkAuth();
       isLoaded.value = true;
-      handleNavigation(); // Cek saat pertama kali aplikasi dimuat
-    });
-
-    watch(route, () => {
-      handleNavigation(); // Cek ulang setiap kali rute berubah
     });
 
     return { isAuthenticated, isLoaded };

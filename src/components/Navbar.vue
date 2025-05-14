@@ -19,10 +19,7 @@
 
       <!-- Navbar Links -->
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <router-link to="/" class="nav-link text-dark">Login</router-link>
-          </li>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="role == 'admin'">
           <li class="nav-item">
             <router-link to="/profile" class="nav-link text-dark">Profile</router-link>
           </li>
@@ -34,6 +31,14 @@
           </li>
           <li class="nav-item">
             <router-link to="/inbounds" class="nav-link text-dark">Inbounds</router-link>
+          </li>
+        </ul>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="role == 'staff'">
+          <li class="nav-item">
+            <router-link to="/profile" class="nav-link text-dark">Profile</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/lendings" class="nav-link text-dark">Lendings</router-link>
           </li>
         </ul>
 
@@ -54,7 +59,8 @@ export default {
   name: "Navbar",
   data() {
     return {
-      clock: ""
+      clock: "",
+      role: "",
     };
   },
   computed: {
@@ -85,6 +91,8 @@ export default {
   mounted() {
     this.updateClock();
     setInterval(this.updateClock, 1000);
+    // mengisi data role
+    this.role = JSON.parse(localStorage.getItem('user'))?.role;
   }
 };
 </script>
