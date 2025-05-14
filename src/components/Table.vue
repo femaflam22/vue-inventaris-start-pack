@@ -6,12 +6,12 @@
     <!-- Tombol-tombol aksi -->
     <div class="d-flex gap-3 mb-3">
       <!-- Tombol untuk Cetak PDF dengan ikon -->
-      <button class="btn btn-primary" v-if="exportBtn.includes('pdf')" @click="$emit('print-pdf')">
+      <button class="btn btn-primary" v-if="exportBtn && exportBtn.includes('pdf')" @click="$emit('print-pdf')">
         <i class="bi bi-file-earmark-pdf"></i> Cetak PDF
       </button>
 
       <!-- Tombol untuk Ekspor ke Excel dengan ikon -->
-      <button class="btn btn-success" v-if="exportBtn.includes('excel')" @click="$emit('export-excel')">
+      <button class="btn btn-success" v-if="exportBtn && exportBtn.includes('excel')" @click="$emit('export-excel')">
         <i class="bi bi-file-earmark-excel"></i> Ekspor ke Excel
       </button>
     </div>
